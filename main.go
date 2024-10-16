@@ -1,10 +1,38 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/sup.dongkew/go-example/func"
 )
+
+// Error Handling
+func divide(a, b int) (int, error) {
+	if b == 0 {
+		return 0, errors.New("cannot divide by zero")
+	}
+	// ถ้าไม่เกิด Error ให้ Return ค่ากลับไปเป็น nil หรือ null
+	return a / b, nil
+}
+
+// Custom Error
+type LoginError struct {
+	Username string
+	Message  string
+}
+
+func (e *LoginError) Error() string {
+	return fmt.Sprintf("Login error for user '%s': %s", e.Username, e.Message)
+}
+
+func login(username, password string) error {
+	if username != "admin" || password != "password123" {
+		return &LoginError{Username: username, Message: "invalid credentials"}
+	}
+	// Login successful
+	return nil
+}
 
 func main() {
 	id := uuid.New()
@@ -14,6 +42,31 @@ func main() {
 	var101()
 	ControlStructure()
 	dataStructure()
+
+	// ! Error Handling
+	result, err := divide(10, 0)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	fmt.Println("Result:", result)
+
+	// ! Custom Error
+	er := login("user", "pass")
+	if er != nil {
+		switch e := er.(type) {
+		case *LoginError:
+			// Custom error handling
+			fmt.Println("Custom error occurred:", e)
+		default:
+			// Other types of errors
+			fmt.Println("Generic error occurred:", e)
+		}
+		return
+	}
+
+	// Continue with the rest of the program if login is successful
+	fmt.Println("Login successful!")
 }
 
 func var101() {
@@ -142,19 +195,19 @@ func dataStructure() {
 	arr[4] = 5
 	fmt.Println(arr)
 
-	// Slice
+	// ! Slice
 	fmt.Print("Slice: ")
 	var slice []int // Slice เหมือนกับ Array แต่ไม่ต้องกำหนดขนาดของ Slice ไว้ล่วงหน้า
 	// Assign ค่าให้กับ Slice
 	slice = append(slice, 1, 2, 3, 4, 5)
 	fmt.Println(slice)
 
-	// Map
+	// ! Map
 	fmt.Print("Map: ")
 	var m map[string]int // Map เหมือนกับ Slice แต่เก็บข้อมูลแบบ Key Value
 	fmt.Println(m)
 
-	// เช็คว่ามีค่าใน Map หรือไม่
+	// ! เช็คว่ามีค่าใน Map หรือไม่
 	value, ok := m["key"]
 	if ok {
 		fmt.Println(value)
@@ -162,7 +215,7 @@ func dataStructure() {
 		fmt.Println("Not found")
 	}
 
-	// Struct
+	// ! Struct
 	fmt.Print("Struct: ")
 	type Person struct {
 		Firstname string
@@ -183,7 +236,7 @@ func dataStructure() {
 	student2.Age = 25
 	fmt.Println(student2)
 
-	// Array of Struct
+	// ! Array of Struct
 	fmt.Print("Array of Struct: ")
 	type Student struct {
 		Firstname string
@@ -198,29 +251,42 @@ func dataStructure() {
 	}
 	fmt.Println(students)
 
-	// Add Struct into Map
+	// ! Add Struct into Map
 	fmt.Print("Add Struct into Map: ")
-	studentMap := make(map[string]Person, 0)	// ประกาศ Map
+	studentMap := make(map[string]Person, 0)                                             // ประกาศ Map
 	studentMap["student1"] = Person{Firstname: "Supakorn", Lastname: "Dongkew", Age: 25} // กำหนด Key และ Assignt ค่าให้กับ Map ด้วย Struct
 	studentMap["student2"] = Person{Firstname: "John", Lastname: "Doe", Age: 30}
 	fmt.Println(studentMap)
 
-	// Function
+	// ! Function
 	fmt.Print("Function: ")
 	// ประกาศ Function
 	var add = func(a int, b int) int {
 		return a + b
 	} // Function เป็น Data Type ที่เก็บ Function ไว้ในตัวแปรได้
 
-	// การเรียกใช้ Function
+	// ! การเรียกใช้ Function
 	result := add(5, 10)
 	fmt.Println(result)
+	// เขียน Function ไว้ด้านล่าง
+	fmt.Println(typeLastname("Dongkew"))
 
-	// Pointer
+	// ! Pointer
 	fmt.Print("Pointer: ")
-	// ประกาศ Pointer
+	// ประกาศ Pointer โดยใช้ * นำหน้า Type ของตัวแปร
 	var p *int
-	i := 42         // ประกาศตัวแปร i และกำหนดค่าให้เท่ากับ 42
-	p = &i          // การใช้งาน Pointer ใช้ & นำหน้าตัวแปรที่ต้องการเก็บค่า Address ของตัวแปรนั้น
+	i := 42 // ประกาศตัวแปร i และกำหนดค่าให้เท่ากับ 42
+	j := 2701
+	p = &i // การใช้งาน Pointer ใช้ & นำหน้าตัวแปรที่ต้องการเก็บค่า Address ของตัวแปรนั้น
+	p = &j
 	fmt.Println(*p) // การใช้งาน Pointer ใช้ * นำหน้าตัวแปรที่เป็น Pointer
+}
+
+// ! ประกาศ Function
+func typeFirstname(name string) string {
+	return name
+}
+
+func typeLastname(name string) string {
+	return typeFirstname("Supakorn ") + name
 }
